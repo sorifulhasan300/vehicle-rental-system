@@ -1,5 +1,20 @@
 import { pool } from "../../config/database";
 
+const getSingleVehicle = async (id: string) => {
+  const result = await pool.query(
+    `SELECT id,vehicle_name,type,registration_number,daily_rent_price::FLOAT AS daily_rent_price,availability_status FROM vehicles WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0];
+};
+
+const getAllVehicles = async () => {
+  const result = await pool.query(
+    `SELECT id,vehicle_name,type,registration_number,daily_rent_price::FLOAT AS daily_rent_price,availability_status FROM vehicles`
+  );
+  return result.rows;
+};
+
 const createVehicle = async (payload: Record<string, unknown>) => {
   const {
     vehicle_name,
@@ -33,23 +48,7 @@ const createVehicle = async (payload: Record<string, unknown>) => {
   };
 };
 
-const getSingleVehicle = async (id: string) => {
-  const result = await pool.query(`SELECT * FROM vehicles WHERE id = $1`, [id]);
-  if (result.rowCount === 0) {
-    throw new Error("Vehicle not found");
-  }
-  return result.rows[0];
-};
-
-const getAllVehicles = async () => {
-  const result = await pool.query(
-    `SELECT id,vehicle_name,registration_number,daily_rent_price,availability_status FROM vehicles`
-  );
-  return result.rows;
-};
-
 const updateVehicle = async (id: string, payload: Record<string, unknown>) => {
-  console.log(id);
   const {
     vehicle_name,
     type,
@@ -58,7 +57,7 @@ const updateVehicle = async (id: string, payload: Record<string, unknown>) => {
     availability_status,
   } = payload;
   const result = await pool.query(
-    `UPDATE vehicles SET vehicle_name=$1, type=$2,registration_number=$3,daily_rent_price=$4, availability_status=$5 WHERE id = $6 RETURNING * `,
+    `UPDATE vehicles SET vehicle_name=$1, type=$2,registration_number=$3,daily_rent_price=$4, availability_status=$5 WHERE id = $6 RETURNING id, vehicle_name,type,registration_number, daily_rent_price::FLOAT AS daily_rent_price,availability_status `,
     [
       vehicle_name,
       type,
@@ -68,10 +67,7 @@ const updateVehicle = async (id: string, payload: Record<string, unknown>) => {
       id,
     ]
   );
-  if (result.rowCount === 0) {
-    throw new Error("Vehicle update unsuccessfully");
-  }
-  return result.rows[0];
+  return result;
 };
 
 const deleteVehicle = async (id: string) => {
