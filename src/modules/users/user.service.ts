@@ -2,6 +2,9 @@ import { pool } from "../../config/database";
 
 const getUsers = async () => {
   const result = await pool.query("SELECT * FROM users");
+  if (result.rowCount === 0) {
+    throw new Error("Users Not Found");
+  }
   return result.rows;
 };
 
@@ -12,9 +15,10 @@ const updateUser = async (
   phone: string,
   role: string
 ) => {
+  const roleValid = role || "customer";
   const result = await pool.query(
     "UPDATE users SET name=$1, email=$2,phone=$3,role=$4 WHERE id = $5 RETURNING * ",
-    [name, email, phone, role, id]
+    [name, email, phone, roleValid, id]
   );
   if (result.rowCount === 0) {
     throw new Error("User Update Unsuccessfully");

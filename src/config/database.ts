@@ -27,5 +27,19 @@ async function initDB() {
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
     )`);
+
+  await pool.query(`
+      CREATE TABLE IF NOT EXISTS bookings(
+      id SERIAL PRIMARY KEY,
+      customer_id INT NOT NULL,
+      vehicle_id INT NOT NULL,
+      rent_start_date DATE NOT NULL,
+      rent_end_date DATE NOT NULL,
+      status VARCHAR(50) NOT NULL DEFAULT 'active' CHECK(status IN ('active','cancelled','returned')),
+      FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+      )
+      `);
 }
+
 export default initDB;

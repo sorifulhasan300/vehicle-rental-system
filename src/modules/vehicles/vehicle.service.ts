@@ -1,7 +1,6 @@
 import { pool } from "../../config/database";
 
 const createVehicle = async (payload: Record<string, unknown>) => {
-  console.log(payload);
   const {
     vehicle_name,
     type,
@@ -9,6 +8,7 @@ const createVehicle = async (payload: Record<string, unknown>) => {
     daily_rent_price,
     availability_status,
   } = payload;
+
   const result = await pool.query(
     `INSERT INTO vehicles(vehicle_name,type,registration_number,daily_rent_price,availability_status) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
     [
@@ -22,7 +22,15 @@ const createVehicle = async (payload: Record<string, unknown>) => {
   if (result.rowCount === 0) {
     throw new Error("Vehicle created unsuccessfully");
   }
-  return result.rows[0];
+  const vehicle = result.rows[0];
+  return {
+    id: vehicle.id,
+    vehicle_name: vehicle.vehicle_name,
+    type: vehicle.type,
+    registration_number: vehicle.registration_number,
+    daily_rent_price: Number(vehicle.daily_rent_price),
+    availability_status: vehicle.availability_status,
+  };
 };
 
 const getSingleVehicle = async (id: string) => {
@@ -34,11 +42,9 @@ const getSingleVehicle = async (id: string) => {
 };
 
 const getAllVehicles = async () => {
-  const result = await pool.query(`SELECT * FROM vehicles`);
-
-  if (result.rowCount === 0) {
-    throw new Error("Vehicles not found");
-  }
+  const result = await pool.query(
+    `SELECT id,vehicle_name,registration_number,daily_rent_price,availability_status FROM vehicles`
+  );
   return result.rows;
 };
 

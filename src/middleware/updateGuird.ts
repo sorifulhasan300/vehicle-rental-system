@@ -5,6 +5,7 @@ export const updateUserGuard = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(req.body);
   const targetId = req.params.userId;
   const user = req.user;
   if (user?.role === "customer") {
@@ -13,9 +14,9 @@ export const updateUserGuard = (
         message: "Customers can update only their own profile",
       });
     }
-    if (req.body.role || req.body.id) {
+    if (req.body.role) {
       return res.status(403).json({
-        message: "You are not allowed to change role or id",
+        message: "You are not allowed to change role",
       });
     }
   }

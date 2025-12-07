@@ -33,7 +33,6 @@ const signIn = async (email: string, password: string) => {
   if (!isMatch) {
     throw new Error("Invalid email or password");
   }
-
   const payload = {
     id: user.id,
     email: user.email,
@@ -43,7 +42,10 @@ const signIn = async (email: string, password: string) => {
     expiresIn: "7d",
   });
 
-  return { user, token };
+  return {
+    token,
+    user,
+  };
 };
 
 export const Service = {
